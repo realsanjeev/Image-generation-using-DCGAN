@@ -190,3 +190,82 @@ The key advantage of bilateral filtering is its ability to smooth noise while pr
   
 - **Brightness Sigma (σ)**: This parameter controls how much difference in pixel intensities can be tolerated. A higher value allows more neighboring pixels to influence the output, making the filter behave more like a Gaussian filter. If brightness sigma is set too high, the bilateral filter loses its edge-preserving property and behaves similarly to Gaussian smoothing, blurring edges and fine details.
 
+### Template Matching through Correlation
+
+Template matching by correlation is a technique used to find a smaller template or pattern within a larger image. The aim is to determine the position where the template matches the image as closely as possible, even with slight variations like changes in lighting or orientation. The process involves sliding the template over the image, comparing it at each position, and identifying the location that provides the best fit.
+
+![Template matching](images/template_matching.png)
+
+#### Key Concepts:
+
+1. **Template Matching Process**:
+   - Two inputs are given: a **template** (small pattern) and an **image** (larger image).
+   - The objective is to locate the template within the image by finding regions where it fits well.
+   - This is achieved by **sliding** the template across the image and calculating the match quality at each position.
+
+2. **Difference Measurement**:
+   - For each template position in the image, a **metric** is used to calculate the difference between the template and the corresponding part of the image.
+   - A common metric is the **sum of squared differences (SSD)** between the template and the image portion. A smaller SSD indicates a better match.
+
+   **SSD Formula**:
+   $$
+      \text{SSD} = \sum_{m} \sum_{n} (f[m,n] - t[m-i,n-j])^2
+   $$
+
+   - When the SSD is **zero**, it indicates a perfect match between the template and the image region.
+
+#### Cross-Correlation
+
+**Cross-correlation** extends the idea of measuring differences by calculating a similarity score between the template and the image. A higher score signifies a better match.
+
+1. **Mathematical Formulation**:
+   Cross-correlation is defined as:
+   $$
+   R_{tf}[i,j] = \sum_{m} \sum_{n} f[m,n]t[m-i, n-j] =t \otimes f
+   $$ 
+   where $t(m,n)$ represents the template and $t[m-i, n-j]$ represents the image at the shifted position.
+
+   - In this case, the template $t$ is **not flipped**, unlike in convolution (another image processing operation), which involves flipping the template before comparing it to the image.
+   - The primary difference between cross-correlation and convolution is that the indices shift differently. Cross-correlation doesn't flip the template, whereas convolution does.
+
+2. **Convolution vs. Cross-Correlation**:
+   The key distinction is that convolution flips the template before performing the comparison, while cross-correlation does not. This makes cross-correlation computationally simpler in some situations.
+
+![Convolution vs Cross Correlation](images/convolution_vs_crossCorrelation.png)
+
+#### Challenges with Cross-Correlation
+
+Although cross-correlation is effective for template matching, it may not always provide accurate results due to variations in **brightness** or **lighting conditions**. This happens when the image and the template match in terms of pattern but differ in intensity or lighting.
+
+1. **Example Problem**: 
+   If the template and the image share a similar structure but have different lighting conditions, cross-correlation may yield a high match score for regions with similar brightness, even though they do not exactly match in pattern.
+
+   For instance, if the template is dark and the corresponding image region is bright, cross-correlation might return a high score despite a mismatch in patterns.
+
+2. **Solution: Normalizing Cross-Correlation**:
+   To address this issue, **normalization** of the cross-correlation result is applied. Normalization compensates for brightness and contrast changes, making the cross-correlation score more robust to lighting variations.
+
+   The normalized cross-correlation formula is:
+   $$
+   \text{Normalized Cross-Correlation} = \frac{R_{tf}(i,j)}{\sqrt{E_{\text{image}} \cdot E_{\text{template}}}}
+   $$
+
+   where:
+   - $E_{\text{image}}$ represents the energy (sum of squared pixel values) of the region of the image overlapping with the template.
+   - $E_{\text{template}}$ is the energy of the template.
+
+   Normalization ensures that the template matching process remains **insensitive to brightness changes**, allowing it to perform well even in varying lighting conditions or camera settings.
+
+#### Final Outcome: Accurate Template Matching
+
+After applying normalization, the cross-correlation values are adjusted, ensuring that the highest normalized cross-correlation score corresponds to the best match. This means that:
+
+- The **highest** value in the normalized cross-correlation map will pinpoint the region in the image where the template best matches.
+- The template can now be accurately located in the image, even with variations in brightness or lighting.
+
+### Real-World Example
+
+In real-world scenarios, once normalization is applied, the results are much more precise:
+
+- Given a template and a target image, the normalized cross-correlation map is calculated.
+- The brightest spot on this map will correspond to the area in the image where the template fits, regardless of changes in lighting or contrast.
