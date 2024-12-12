@@ -231,7 +231,7 @@ Template matching by correlation is a technique used to find a smaller template 
 2. **Convolution vs. Cross-Correlation**:
    The key distinction is that convolution flips the template before performing the comparison, while cross-correlation does not. This makes cross-correlation computationally simpler in some situations.
 
-![Convolution vs Cross Correlation](images/convolution_vs_crossCorrelation.png)
+   ![Convolution vs Cross Correlation](images/convolution_vs_crossCorrelation.png)
 
 #### Challenges with Cross-Correlation
 
@@ -240,20 +240,14 @@ Although cross-correlation is effective for template matching, it may not always
 1. **Example Problem**: 
    If the template and the image share a similar structure but have different lighting conditions, cross-correlation may yield a high match score for regions with similar brightness, even though they do not exactly match in pattern.
 
+   ![Problem with the Cross-Correlation](images/problem_with_correlation.png)
+
    For instance, if the template is dark and the corresponding image region is bright, cross-correlation might return a high score despite a mismatch in patterns.
 
 2. **Solution: Normalizing Cross-Correlation**:
    To address this issue, **normalization** of the cross-correlation result is applied. Normalization compensates for brightness and contrast changes, making the cross-correlation score more robust to lighting variations.
 
-   The normalized cross-correlation formula is:
-   $$
-   \text{Normalized Cross-Correlation} = \frac{R_{tf}(i,j)}{\sqrt{E_{\text{image}} \cdot E_{\text{template}}}}
-   $$
-
-   where:
-   - $E_{\text{image}}$ represents the energy (sum of squared pixel values) of the region of the image overlapping with the template.
-   - $E_{\text{template}}$ is the energy of the template.
-
+   ![Normalized Cross Correlation](images/normalized_cross_correlation.png)
    Normalization ensures that the template matching process remains **insensitive to brightness changes**, allowing it to perform well even in varying lighting conditions or camera settings.
 
 #### Final Outcome: Accurate Template Matching
