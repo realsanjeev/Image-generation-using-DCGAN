@@ -1,4 +1,6 @@
 torch
 torchvision
+torchview
 numpy
 matplotlib
+einops
